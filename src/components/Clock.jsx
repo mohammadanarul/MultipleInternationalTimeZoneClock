@@ -1,12 +1,7 @@
 import {
   format,
-  formatDistance,
   getDate,
-  getHours,
-  getMinutes,
   getMonth,
-  getSeconds,
-  getTime,
   getYear,
   differenceInMinutes,
   differenceInHours,
@@ -14,70 +9,74 @@ import {
 import { useEffect, useState } from "react";
 import Button from "./UI/button/Button";
 import DangerButton from "./UI/button/DangerButton";
-const Clock = ({ times }) => {
-  const ttz = new Date(Date.now()).toLocaleString("en-US", {
-    timeZone: times.timeZoneName,
-  });
-  const [worldTime, setWorldTime] = useState(ttz);
+import TimeGroup from "./UI/time/TimeGroup";
+import TimeDiv from "./UI/time/TimeDiv";
+import Card from "./UI/card/Card";
+import ColonDiv from "./UI/time/ColonDiv";
+import Title from "./UI/title/Title";
+import DateDiv from "./UI/time/DateDiv";
+import SubTitle from "./UI/title/SubTitle";
+import AmPm from "./UI/time/AmPm";
+import { startTime } from "../utils/timezoneUtils";
+import { getTime } from "../utils/utils";
+import ClockForm from "./forms/ClockForm";
+
+const Clock = ({ times, updateWorldClock, deleteWorldClock }) => {
+  const zone = startTime(times.timeZoneName);
+  const [worldTime, setWorldTime] = useState(zone);
+  const [editSate, setEditState] = useState(null);
 
   useEffect(() => {
     const timeInterval = setInterval(() => {
-      setWorldTime(
-        new Date(Date.now()).toLocaleString("en-US", {
-          timeZone: times.timeZoneName,
-        })
-      );
+      setWorldTime(startTime(times.timeZoneName));
     }, 1000);
 
     return () => {
       clearInterval(timeInterval);
     };
   }, []);
-  const timeParse = Date.parse(worldTime);
-  const time = format(timeParse, "hh:mm:ss a");
-  const timeAP = format(timeParse, "a");
-  const datetime = format(timeParse, "yyyy:MM:dd");
-  const hours = getHours(timeParse);
-  const minuts = getMinutes(timeParse);
-  const seconds = getSeconds(timeParse);
-  const day = getDate(timeParse);
-  const year = getYear(timeParse);
-  const month = getMonth(timeParse);
-  const dateResult = `${year}, ${month}, ${day}, ${hours}, ${minuts}, 0`;
-  const timeResult = `${hours}, ${minuts}, ${seconds}`;
-  const hoursDifferent = differenceInHours(
-    new Date(year, month, day, hours, minuts, 0),
-    new Date()
-  );
-  const minitesDifferent1 = differenceInMinutes(
-    new Date(2000, 0, 1, 10, 0, 0),
-    new Date(2000, 0, 1, 10, 1, 59)
-  );
+
+  const { year, month, day, date, hours, minuts, seconds, amPM } =
+    getTime(worldTime);
+  const {
+    year: myYear,
+    month: myMonth,
+    day: myDay,
+    hours: myHours,
+    minuts: myMinuts,
+  } = getTime(new Date());
+  let country = times.timeZoneName.split("/");
+
+  let leftTime = new Date(myYear, myMonth, myDay, myHours, myMinuts);
+  let rightTime = new Date(year, month, day, hours, minuts);
+
+  const hoursDifferent = differenceInHours(leftTime, rightTime);
+  const minitesDifferent1 = differenceInMinutes(leftTime, rightTime);
   const handleUpdate = (e) => {
-    const { name: key, value } = e.target;
-    console.log(value);
+    updateWorldClock(times._id);
   };
-  const handleDelete = (e) => {
-    const { name: key, value } = e.target;
-    console.log(key);
+  const deleteHandle = () => {
+    deleteWorldClock(times._id);
   };
   return (
-    <div>
-      <div
-        style={{ margin: "1rem", padding: ".5rem", border: "thin solid red" }}
-      >
-        <p>title: {times.title}</p>
-        <p>client: {times.client}</p>
-        <p>client: {times.timeZoneName}</p>
-        <p>
-          time: {time} {timeAP}
-        </p>
-        <p>time: {datetime}</p>
-        <p>hours: {hoursDifferent}</p>
-        <Button onClick={handleUpdate}>update</Button>
-        <DangerButton onClick={handleDelete}>update</DangerButton>
-      </div>
-    </div>
+    <Card>
+      <TimeGroup>
+        <TimeDiv>{hours}</TimeDiv>
+        <ColonDiv>:</ColonDiv>
+        <TimeDiv>{minuts}</TimeDiv>
+        <ColonDiv>:</ColonDiv>
+        <TimeDiv>{seconds}</TimeDiv>
+        <AmPm>{amPM}</AmPm>
+      </TimeGroup>
+      <DateDiv>{date}</DateDiv>
+      <Title>{times.title}</Title>
+      <SubTitle>{times.name}</SubTitle>
+      <SubTitle>hours: {hoursDifferent}</SubTitle>
+      <SubTitle>minites: {minitesDifferent1}</SubTitle>
+      <SubTitle>zone: {country[country.length - 1]}</SubTitle>
+      <Button onClick={handleUpdate}>Update</Button>
+      <DangerButton onClick={deleteHandle}>Delete</DangerButton>
+    </Card>
   );
 };
 

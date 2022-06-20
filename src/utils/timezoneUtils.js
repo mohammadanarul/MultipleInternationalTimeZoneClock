@@ -1,8 +1,7 @@
-export const startTime = (timezoneName) => {
+export const startTime = (zone) => {
   try {
     return new Date(Date.now()).toLocaleString("en-US", {
-      timeZone: timezoneName,
-      timeZoneName: "short",
+      timeZone: zone,
     });
   } catch (e) {
     console.log(e);

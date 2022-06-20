@@ -1,63 +1,25 @@
-import { useState, useEffect, useRef } from "react";
 import Input from "../UI/input/Input";
 import Select from "../UI/input/Select";
 import PrimaryButton from "../UI/button/PrimaryButton";
-import { objectDeepclone, isObjectEmpty } from "../../utils/utils";
 import { timezoneLists } from "../../data/timezoneLists";
-
-const timezoneForm = {
-  title: {
-    value: "",
-    error: "",
-    focus: false,
-  },
-  client: {
-    value: "",
-    error: "",
-    focus: false,
-  },
-  timeZoneName: {
-    value: "",
-    error: "",
-    focus: false,
-  },
+import useForm from "../hooks/useForm";
+import { validate } from "../../utils/utils";
+const timezoneInitForm = {
+  _id: "",
+  title: "",
+  name: "",
+  timeZoneName: "",
 };
 
-const ClockForm = ({ setTimezones }) => {
-  // const startTime = new Date(Date.now()).toLocaleString("en-US", {
-  //   timeZone: "America/New_York",
-  //   timeZoneName: "short",
-  // });
-  // const [worldTime, setWorldTime] = useState(startTime);
-  const [timezone, setTimezone] = useState({ ...timezoneForm });
-  /*
-  TODO: handleFocus, dhandleBlur
-  */
-  const { title, client, timeZoneName } = timezone;
-  // handle Change
-  const handleChange = (e) => {
-    const { name: key, value } = e.target;
-    const oldState = objectDeepclone(timezone);
-    oldState[key].value = value;
-    setTimezone(oldState);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(timezone);
-    const state = Object.keys(timezone).reduce((acc, cur) => {
-      acc[cur] = timezone[cur].value;
-      return acc;
-    }, {});
-    setTimezones((prevTimezones) => [...prevTimezones, state]);
-    setTimezone({ ...timezoneForm });
-  };
-
-  // const [date, timeDig, timeOfDay] = worldTime.split(" ");
-  // const [mm, dd, yyyy] = date.split("/");
-  // const [hours, minutes, seconds] = timeDig.split(":");
-  // const datetimes = `${yyyy}${mm},${dd},${hours},${minutes}`;
-
+const ClockForm = ({ setTimezones, timeState }) => {
+  const { timezoneForm, handleChange, handleSubmit } = useForm({
+    timezoneInitForm,
+    validate,
+    setTimezones,
+    timeState,
+  });
+  const { title, name, timeZoneName } = timezoneForm;
+  console.log(`update form data ${title} zone: ${timeZoneName}`);
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -65,22 +27,24 @@ const ClockForm = ({ setTimezones }) => {
           type="text"
           value={title.value}
           name={"title"}
-          placeholder={"Clock title"}
+          placeholder={"title"}
           onChange={handleChange}
         />
         <Input
           type="text"
-          name={"client"}
-          value={client.value}
-          placeholder={"Client name"}
+          name={"name"}
+          value={name.value}
+          placeholder={"name"}
           onChange={handleChange}
         />
         <Select
+          type="select"
           name={"timeZoneName"}
           value={timeZoneName.value}
           id="timeZoneName"
           onChange={handleChange}
         >
+          <option value={"select timezone"}>select timezone</option>
           {timezoneLists.map((timezone, index) => (
             <option key={index} value={timezone}>
               {timezone}
