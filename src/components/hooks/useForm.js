@@ -6,6 +6,7 @@ const useForm = ({ timezoneInitForm, validate, setTimezones, timeState }) => {
   const [timezoneForm, setTimezoneForm] = useState(
     mapValuesToState(timezoneInitForm)
   );
+  const [isUpdate, setIsUpdate] = useState(false);
   /**
    * TODO: handleFocus, handleBlur, handleUpdate,
    */
@@ -21,12 +22,20 @@ const useForm = ({ timezoneInitForm, validate, setTimezones, timeState }) => {
     e.preventDefault();
 
     const state = mapStateToKeys(timezoneForm, "value");
-
-    setTimezones((prevData) => [...prevData, state]);
+    if (!isUpdate) {
+      setTimezones((prevData) => [...prevData, state]);
+      console.log("is not working for update date " + isUpdate);
+    }
+    if (isUpdate) {
+      setIsUpdate(false);
+      console.log("is working for update date " + isUpdate);
+      setTimezones((prevData) => [...prevData, state]);
+    }
     setTimezoneForm(mapValuesToState(timezoneInitForm, true));
   };
   useEffect(() => {
     if (timeState) {
+      setIsUpdate(true);
       setTimezoneForm(mapValuesToState(timeState));
     }
   }, [timeState]);

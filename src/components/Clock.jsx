@@ -36,19 +36,19 @@ const Clock = ({ times, updateWorldClock, deleteWorldClock }) => {
     };
   }, []);
 
-  const { year, month, day, date, hours, minuts, seconds, amPM } =
+  const { year, month, day, date, hours, Hours, minuts, seconds, amPM } =
     getTime(worldTime);
   const {
     year: myYear,
     month: myMonth,
     day: myDay,
-    hours: myHours,
+    Hours: myHours,
     minuts: myMinuts,
   } = getTime(new Date());
   let country = times.timeZoneName.split("/");
 
-  let leftTime = new Date(myYear, myMonth, myDay, myHours, myMinuts);
-  let rightTime = new Date(year, month, day, hours, minuts);
+  const leftTime = new Date(myYear, myMonth, myDay, myHours, myMinuts);
+  const rightTime = new Date(year, month, day, Hours, minuts);
 
   const hoursDifferent = differenceInHours(leftTime, rightTime);
   const minitesDifferent1 = differenceInMinutes(leftTime, rightTime);
